@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Pronosticatore Calcio V1</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 15px;
+    font-family: Arial, sans-serif;
+    background: #101827;
+    color: white;
+}
+
+.container {
+    max-width: 650px;
+    margin: auto;
+}
+
+h1 {
+    text-align: center;
+    color: #35e58c;
+    font-size: 27px;
+}
+
+.sottotitolo {
+    text-align: center;
+    color: #bdc8d8;
+    margin-bottom: 25px;
+}
+
+.card {
+    background: #1d293b;
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 18px;
+    border: 1px solid #35445c;
+}
+
+h2 {
+    color: #35e58c;
+    font-size: 20px;
+    margin-top: 0;
+}
+
+label {
+    display: block;
+    margin-top: 13px;
+    margin-bottom: 6px;
+    color: #dbe5f3;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #52627a;
+    background: #101827;
+    color: white;
+    font-size: 16px;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 9px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.calcola {
+    background: #35e58c;
+    color: #10251a;
+}
+
+.risultato {
+    display: none;
+}
+
+.griglia {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.box {
+    background: #101827;
+    padding: 13px 5px;
+    border-radius: 9px;
+    text-align: center;
+}
+
+.percentuale {
+    color: #35e58c;
+    font-size: 23px;
+    font-weight: bold;
+    display: block;
+    margin-top: 8px;
+}
+
+.riga {
+    padding: 12px;
+    margin-top: 8px;
+    background: #101827;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.evidenza {
+    color: #35e58c;
+    font-weight: bold;
+}
+
+.nota {
+    color: #bdc8d8;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+footer {
+    text-align: center;
+    color: #9eabc0;
+    font-size: 12px;
+    padding: 15px 0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>⚽ PRONOSTICATORE CALCIO</h1>
+
+<p class="sottotitolo">
+Versione 1.0 · Analisi matematica delle partite
+</p>
+
+<div class="card">
+
+<h2>🏟️ Inserisci la partita</h2>
+
+<label for="campionato">Campionato</label>
+<select id="campionato">
+<option>Serie A - Italia</option>
+<option>Serie B - Italia</option>
+<option>Premier League - Inghilterra</option>
+<option>La Liga - Spagna</option>
+<option>Bundesliga - Germania</option>
+<option>Ligue 1 - Francia</option>
+<option>Champions League</option>
+<option>Europa League</option>
+<option>Altro campionato</option>
+</select>
+
+<label for="casa">Squadra di casa</label>
+<input id="casa" type="text" placeholder="Es. Inter">
+
+<label for="ospite">Squadra ospite</label>
+<input id="ospite" type="text" placeholder="Es. Milan">
+
+<label for="golCasa">Media gol segnati dalla squadra di casa</label>
+<input id="golCasa" type="number" min="0" max="10"
+step="0.1" value="1.6">
+
+<label for="subitiCasa">Media gol subiti dalla squadra di casa</label>
+<input id="subitiCasa" type="number" min="0" max="10"
+step="0.1" value="1.0">
+
+<label for="golOspite">Media gol segnati dalla squadra ospite</label>
+<input id="golOspite" type="number" min="0" max="10"
+step="0.1" value="1.2">
+
+<label for="subitiOspite">Media gol subiti dalla squadra ospite</label>
+<input id="subitiOspite" type="number" min="0" max="10"
+step="0.1" value="1.3">
+
+<button class="calcola" onclick="calcolaPronostico()">
+CALCOLA PRONOSTICO
+</button>
+
+</div>
+
+<div class="card risultato" id="risultato">
+
+<h2>📊 Probabilità 1X2</h2>
+
+<p id="riepilogo"></p>
+
+<div class="griglia">
+
+<div class="box">
+Vittoria casa
+<span class="percentuale" id="p1">0%</span>
+</div>
+
+<div class="box">
+Pareggio
+<span class="percentuale" id="px">0%</span>
+</div>
+
+<div class="box">
+Vittoria ospite
+<span class="percentuale" id="p2">0%</span>
+</div>
+
+</div>
+
+<h2 style="margin-top:25px;">🎯 Risultati esatti</h2>
+
+<div id="risultatiEsatti"></div>
+
+<h2 style="margin-top:25px;">⚽ Over / Under</h2>
+
+<div id="overUnder"></div>
+
+<h2 style="margin-top:25px;">🥅 Entrambe segnano</h2>
+
+<div id="goal"></div>
+
+<h2 style="margin-top:25px;">📌 Riepilogo matematico</h2>
+
+<div id="riepilogoFinale"></div>
+
+</div>
+
+<div class="card">
+
+<h2>ℹ️ Come funziona</h2>
+
+<p class="nota">
+Il sistema utilizza una distribuzione di Poisson per stimare
+le probabilità dei risultati, partendo dalle medie dei gol
+inserite dall'utente.
+</p>
+
+<p class="nota">
+Per ottenere stime più attendibili, inserisci medie basate
+su un numero sufficiente di partite e considera separatamente
+le prestazioni in casa e in trasferta.
+</p>
+
+<p class="nota">
+Le probabilità sono stime teoriche: non garantiscono il
+risultato reale e non identificano partite sicure.
+</p>
+
+</div>
+
+<footer>
+Pronosticatore Calcio V1 · Strumento statistico
+</footer>
+
+</div>
+
+<script>
+function fattoriale(n) {
+    let risultato = 1;
+
+    for (let i = 2; i <= n; i++) {
+        risultato *= i;
+    }
+
+    return risultato;
+}
+
+function poisson(k, media) {
+    if (media === 0) {
+        return k === 0 ? 1 : 0;
+    }
+
+    return Math.exp(-media) *
+           Math.pow(media, k) /
+           fattoriale(k);
+}
+
+function numero(id) {
+    return Number(document.getElementById(id).value);
+}
+
+function percentuale(valore) {
+    return (valore * 100).toFixed(1) + "%";
+}
+
+function riga(titolo, valore) {
+    return '<div class="riga"><span>' +
+        titolo + '</span><strong class="evidenza">' +
+        valore + '</strong></div>';
+}
+
+function calcolaPronostico() {
+
+    const casa =
+        document.getElementById("casa").value.trim();
+
+    const ospite =
+        document.getElementById("ospite").value.trim();
+
+    const campionato =
+        document.getElementById("campionato").value;
+
+    const golCasa = numero("golCasa");
+    const subitiCasa = numero("subitiCasa");
+    const golOspite = numero("golOspite");
+    const subitiOspite = numero("subitiOspite");
+
+    if (!casa || !ospite) {
+        alert("Inserisci il nome di entrambe le squadre.");
+        return;
+    }
+
+    const campi = [
+        golCasa, subitiCasa, golOspite, subitiOspite
+    ];
+
+    for (let i = 0; i < campi.length; i++) {
+        if (!Number.isFinite(campi[i]) ||
+            campi[i] < 0 || campi[i] > 10) {
+            alert("Inserisci medie comprese tra 0 e 10.");
+            return;
+        }
+    }
+
+    /*
+      Stima semplice:
+      attacco di una squadra e difesa avversaria
+      vengono combinati per stimare i gol attesi.
+    */
+
+    const mediaCasa = (golCasa + subitiOspite) / 2;
+    const mediaOspite = (golOspite + subitiCasa) / 2;
+
+    let probabilitaCasa = 0;
+    let probabilitaPareggio = 0;
+    let probabilitaOspite = 0;
+
+    let risultati = [];
+
+    for (let i = 0; i <= 10; i++) {
+        for (let j = 0; j <= 10; j++) {
+
+            const p =
+                poisson(i, mediaCasa) *
+                poisson(j, mediaOspite);
+
+            if (i > j) {
+                probabilitaCasa += p;
+            } else if (i === j) {
+                probabilitaPareggio += p;
+            } else {
+                probabilitaOspite += p;
+            }
+
+            risultati.push({
+                casa: i,
+                ospite: j,
+                probabilita: p
+            });
+        }
+    }
+
+    /*
+      Normalizza le probabilità per tenere conto
+      dei risultati oltre i 10 gol non visualizzati.
+    */
+
+    const totale =
+        probabilitaCasa +
+        probabilitaPareggio +
+        probabilitaOspite;
+
+    probabilitaCasa /= totale;
+    probabilitaPareggio /= totale;
+    probabilitaOspite /= totale;
+
+    document.getElementById("p1").textContent =
+        percentuale(probabilitaCasa);
+
+    document.getElementById("px").textContent =
+        percentuale(probabilitaPareggio);
+
+    document.getElementById("p2").textContent =
+        percentuale(probabilitaOspite);
+
+    document.getElementById("riepilogo").textContent =
+        campionato + " · " + casa + " - " + ospite;
+
+    risultati.sort(function(a, b) {
+        return b.probabilita - a.probabilita;
+    });
+
+    let htmlRisultati = "";
+
+    for (let i = 0; i < 5; i++) {
+        const r = risultati[i];
+
+        htmlRisultati += riga(
+            casa + " " + r.casa + " - " +
+            r.ospite + " " + ospite,
+            percentuale(r.probabilita)
+        );
+    }
+
+    document.getElementById("risultatiEsatti").innerHTML =
+        htmlRisultati;
+
+    let over25 = 0;
+    let under25 = 0;
+    let entrambe = 0;
+    let almenoUna = 0;
+
+    for (let i = 0; i <= 10; i++) {
+        for (let j = 0; j <= 10; j++) {
+
+            const p =
+                poisson(i, mediaCasa) *
+                poisson(j, mediaOspite) / totale;
+
+            if (i + j >= 3) {
+                over25 += p;
+            } else {
+                under25 += p;
+            }
+
+            if (i > 0 && j > 0) {
+                entrambe += p;
+            }
+
+            if (i > 0 || j > 0) {
+                almenoUna += p;
+            }
+        }
+    }
+
+    document.getElementById("overUnder").innerHTML =
+        riga("Over 2.5 gol", percentuale(over25)) +
+        riga("Under 2.5 gol", percentuale(under25)) +
+        riga("Over 1.5 gol", percentuale(
+            1 - (poisson(0, mediaCasa) *
+                 poisson(0, mediaOspite) +
+                 poisson(1, mediaCasa) *
+                 poisson(0, mediaOspite) +
+                 poisson(0, mediaCasa) *
+                 poisson(1, mediaOspite)
+                ) / totale
+        ));
+
+    document.getElementById("goal").innerHTML =
+        riga("Goal - entrambe segnano",
+             percentuale(entrambe)) +
+        riga("No Goal - almeno una non segna",
+             percentuale(1 - entrambe));
+
+    let esito = "Partita equilibrata";
+
+    if (probabilitaCasa > probabilitaOspite &&
+        probabilitaCasa > probabilitaPareggio) {
+        esito = "Vantaggio statistico: " + casa;
+    } else if (
+        probabilitaOspite > probabilitaCasa &&
+        probabilitaOspite > probabilitaPareggio
+    ) {
+        esito = "Vantaggio statistico: " + ospite;
+    } else {
+        esito = "Il pareggio è l'esito più probabile";
+    }
+
+    document.getElementById("riepilogoFinale").innerHTML =
+        riga("Gol attesi casa", mediaCasa.toFixed(2)) +
+        riga("Gol attesi ospite", mediaOspite.toFixed(2)) +
+        riga("Esito più probabile", esito
